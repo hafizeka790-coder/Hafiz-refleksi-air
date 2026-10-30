@@ -1,0 +1,39 @@
+
+name: Build Hafiz Reflection Water
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Android
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: |
+          sdkmanager "platforms;android-28" "ndk;28.2.13676358"
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Extract project
+        run: |
+          unzip Hafiz_Reflection_Water_Android_Scaffold.zip
+          
+      - name: Build
+        shell: pwsh
+        run: |
+          cd hafiz_reflection_water_android
+          ./scripts/package.ps1 -Abi arm64-v8a
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hafiz-reflection-water-arm64
+          path: hafiz_reflection_water_android/build-*/*.levipack
+          
